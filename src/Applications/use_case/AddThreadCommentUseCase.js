@@ -1,25 +1,18 @@
-const NewThreadComment = require('../../Domains/threadscomment/entities/NewThreadComment');
+const NewThreadCommentPayload = require('../../Domains/threadscomment/entities/NewThreadCommentPayload');
 
 class AddThreadCommentUseCase {
-  constructor({ threadRepository, threadCommentRepository, authenticationTokenManager }) {
+  constructor({ threadRepository, threadCommentRepository }) {
     this._threadRepository = threadRepository;
     this._threadCommentRepository = threadCommentRepository;
-    this._authenticationTokenManager = authenticationTokenManager;
   }
 
-  async execute(useCasePayload, useCaseParams, useCaseReqHeaders) {
-    // verify token;
-    const { authorization = '' } = useCaseReqHeaders;
-    const token = authorization.replace('Bearer ', '');
-    await this._authenticationTokenManager.verifyAccessToken(token);
-    const tokenData = await this._authenticationTokenManager.decodePayload(token);
-
+  async execute(useCasePayload, useCaseParams, userId) {
     const { threadId } = useCaseParams;
-    const newThreadComment = new NewThreadComment(useCasePayload);
-    await this._threadRepository.getThread(threadId);
+    const newThreadComment = new NewThreadCommentPayload(useCasePayload);
+    await this._threadRepository.verifyThreadAvailability(threadId);
 
     return this._threadCommentRepository.addThreadComment({
-      ...newThreadComment, threadId, userId: tokenData?.id || '',
+      ...newThreadComment, threadId, userId,
     });
   }
 }

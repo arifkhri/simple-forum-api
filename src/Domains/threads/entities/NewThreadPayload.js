@@ -8,7 +8,8 @@ class NewThreadPayload {
     this.body = payload.body;
   }
 
-  _verifyPayload({ title = '', body = '' }) {
+  _verifyPayload(payload) {
+    const { title, body } = payload;
     if (!title || !body) {
       throw new InvariantError('NEW_THREAD_PAYLOAD.NOT_CONTAIN_NEEDED_PROPERTY');
     }

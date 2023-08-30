@@ -5,7 +5,7 @@ const users = require('../../Interfaces/http/api/users');
 const authentications = require('../../Interfaces/http/api/authentications');
 const threads = require('../../Interfaces/http/api/threads');
 
-const createServer = async (container) => {
+const createServer = async (container, jwtTokenManager) => {
   const server = Hapi.server({
     host: process.env.HOST,
     port: process.env.PORT,
@@ -22,7 +22,7 @@ const createServer = async (container) => {
     },
     {
       plugin: threads,
-      options: { container },
+      options: { container, jwtTokenManager },
     },
   ]);
 

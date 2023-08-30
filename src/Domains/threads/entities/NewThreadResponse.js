@@ -9,7 +9,8 @@ class NewThreadResponse {
     this.id = payload.id;
   }
 
-  _verifyPayload({ title = '', owner = '', id = '' }) {
+  _verifyPayload(payload) {
+    const { title, owner, id } = payload;
     if (!title || !owner || !id) {
       throw new InvariantError('NEW_THREAD_RESPONSE.NOT_CONTAIN_NEEDED_PROPERTY');
     }

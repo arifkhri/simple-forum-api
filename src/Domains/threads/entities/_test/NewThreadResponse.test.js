@@ -3,9 +3,7 @@ const NewThreadResponse = require('../NewThreadResponse');
 describe('a NewThreadResponse entities', () => {
   it('should throw error when response did not contain needed property', () => {
     // Arrange
-    const response = {
-      title: '3 Periode',
-    };
+    const response = {};
 
     // Action and Assert
     expect(() => new NewThreadResponse(response)).toThrowError('NEW_THREAD_RESPONSE.NOT_CONTAIN_NEEDED_PROPERTY');

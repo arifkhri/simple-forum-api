@@ -1,4 +1,5 @@
-const NewThreadComment = require('../../../Domains/threadscomment/entities/NewThreadComment');
+const NewThreadCommentResponse = require('../../../Domains/threadscomment/entities/NewThreadCommentResponse');
+const NewThreadCommentPayload = require('../../../Domains/threadscomment/entities/NewThreadCommentPayload');
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const ThreadCommentRepository = require('../../../Domains/threadscomment/ThreadCommentRepository');
 const AuthenticationTokenManager = require('../../security/AuthenticationTokenManager');
@@ -10,16 +11,22 @@ describe('AddThreadCommentUseCase', () => {
    */
   it('should orchestrating the add thread comment action correctly', async () => {
     // Arrange
-    const useCasePayload = {
+    const useCasePayload = new NewThreadCommentPayload({
       content: 'dicoding',
-    };
-
+    });
     const useCaseParams = {
       threadId: 'thread-1',
     };
-
-    const useCaseHeaders = {
-      authorization: 'accessToken',
+    const userId = 'userId';
+    const mockThreadCommentResponse = new NewThreadCommentResponse({
+      content: useCasePayload.content,
+      id: '1',
+      owner: userId,
+    });
+    const mockThreadCommentPayload = {
+      ...useCasePayload,
+      userId,
+      threadId: useCaseParams.threadId,
     };
 
     /** creating dependency of use case */
@@ -28,18 +35,10 @@ describe('AddThreadCommentUseCase', () => {
     const mockAuthenticationTokenManager = new AuthenticationTokenManager();
 
     /** mocking needed function */
-    mockThreadRepository.getThread = jest.fn()
+    mockThreadRepository.verifyThreadAvailability = jest.fn()
       .mockImplementation(() => Promise.resolve(useCaseParams.threadId));
     mockThreadCommentRepository.addThreadComment = jest.fn()
-      .mockImplementation(() => Promise.resolve({
-        content: 'dicoding',
-        id: '',
-        owner: '',
-      }));
-    mockAuthenticationTokenManager.verifyAccessToken = jest.fn()
-      .mockImplementation(() => Promise.resolve(useCaseHeaders.authorization));
-    mockAuthenticationTokenManager.decodePayload = jest.fn()
-      .mockImplementation(() => Promise.resolve(useCaseHeaders.authorization));
+      .mockImplementation(() => Promise.resolve(mockThreadCommentResponse));
 
     /** creating use case instance */
     const addThreadCommentUseCase = new AddThreadCommentUseCase({
@@ -49,18 +48,11 @@ describe('AddThreadCommentUseCase', () => {
     });
 
     // Action
-    const threadComment = await addThreadCommentUseCase.execute(useCasePayload, useCaseParams, useCaseHeaders);
+    const threadComment = await addThreadCommentUseCase.execute(useCasePayload, useCaseParams, userId);
 
     // Assert
-    expect(mockThreadCommentRepository.addThreadComment).toBeCalledWith({
-      ...threadComment,
-      owner: '',
-      id: '',
-      userId: '',
-      threadId: useCaseParams.threadId,
-    });
-    expect(mockAuthenticationTokenManager.verifyAccessToken).toBeCalledWith(useCaseHeaders.authorization);
-    expect(mockAuthenticationTokenManager.decodePayload).toBeCalledWith(useCaseHeaders.authorization);
-    expect(mockThreadRepository.getThread).toBeCalledWith(useCaseParams.threadId);
+    expect(threadComment).toEqual(mockThreadCommentResponse);
+    expect(mockThreadCommentRepository.addThreadComment).toBeCalledWith(mockThreadCommentPayload);
+    expect(mockThreadRepository.verifyThreadAvailability).toBeCalledWith(useCaseParams.threadId);
   });
 });

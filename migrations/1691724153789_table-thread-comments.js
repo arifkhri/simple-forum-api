@@ -30,6 +30,9 @@ exports.up = (pgm) => {
       type: 'TEXT',
       notNull: true,
     },
+    deleted_at: {
+      type: 'TEXT',
+    },
   });
 };
 

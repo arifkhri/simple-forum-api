@@ -4,8 +4,9 @@ const DeleteThreadCommentUseCase = require('../../../../Applications/use_case/De
 const DetailThreadUseCase = require('../../../../Applications/use_case/DetailThreadUseCase');
 
 class ThreadsHandler {
-  constructor(container) {
+  constructor(container, jwtTokenManager) {
     this._container = container;
+    this._jwtTokenManager = jwtTokenManager;
 
     this.postThreadHandler = this.postThreadHandler.bind(this);
     this.postThreadCommentHandler = this.postThreadCommentHandler.bind(this);
@@ -15,7 +16,11 @@ class ThreadsHandler {
 
   async postThreadHandler(request, h) {
     const addThreadUseCase = this._container.getInstance(AddThreadUseCase.name);
-    const addedThread = await addThreadUseCase.execute(request.payload, request.headers);
+    const { authorization = '' } = request.headers;
+    const token = authorization.replace('Bearer ', '');
+    await this._jwtTokenManager.verifyAccessToken(token);
+    const tokenData = await this._jwtTokenManager.decodePayload(token);
+    const addedThread = await addThreadUseCase.execute({ ...request.payload }, tokenData?.id || '');
 
     const response = h.response({
       status: 'success',
@@ -29,8 +34,12 @@ class ThreadsHandler {
 
   async postThreadCommentHandler(request, h) {
     const addThreadCommentUseCase = this._container.getInstance(AddThreadCommentUseCase.name);
+    const { authorization = '' } = request.headers;
+    const token = authorization.replace('Bearer ', '');
+    await this._jwtTokenManager.verifyAccessToken(token);
+    const tokenData = await this._jwtTokenManager.decodePayload(token) || '';
     const addedComment = await addThreadCommentUseCase.execute(
-      request.payload, request.params, request.headers,
+      request.payload, request.params, tokenData?.id || '',
     );
 
     const response = h.response({
@@ -45,7 +54,11 @@ class ThreadsHandler {
 
   async delThreadCommentHandler(request, h) {
     const deleteThreadCommentUseCase = this._container.getInstance(DeleteThreadCommentUseCase.name);
-    await deleteThreadCommentUseCase.execute(request.params, request.headers);
+    const { authorization = '' } = request.headers;
+    const token = authorization.replace('Bearer ', '');
+    await this._jwtTokenManager.verifyAccessToken(token);
+    const tokenData = await this._jwtTokenManager.decodePayload(token) || '';
+    await deleteThreadCommentUseCase.execute(request.params, tokenData?.id || '');
 
     const response = h.response({
       status: 'success',

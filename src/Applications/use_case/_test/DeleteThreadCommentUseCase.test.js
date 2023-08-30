@@ -1,6 +1,4 @@
-const NewThreadComment = require('../../../Domains/threadscomment/entities/NewThreadComment');
 const ThreadCommentRepository = require('../../../Domains/threadscomment/ThreadCommentRepository');
-const AuthenticationTokenManager = require('../../security/AuthenticationTokenManager');
 const DeleteThreadCommentUseCase = require('../DeleteThreadCommentUseCase');
 
 describe('DeleteThreadCommentUseCase', () => {
@@ -13,39 +11,31 @@ describe('DeleteThreadCommentUseCase', () => {
       threadId: 'thread-id',
     };
 
-    const useCaseHeaders = {
-      authorization: 'accessToken',
+    const userId = 'userId';
+
+    const deletePayload = {
+      ...useCaseParams,
+      userId,
     };
 
     /** creating dependency of use case */
     const mockThreadCommentRepository = new ThreadCommentRepository();
-    const mockAuthenticationTokenManager = new AuthenticationTokenManager();
     /** mocking needed function */
-    mockThreadCommentRepository.getThreadComment = jest.fn()
-      .mockImplementation(() => Promise.resolve());
+    mockThreadCommentRepository.verifyThreadCommentAvailability = jest.fn()
+      .mockImplementation(() => Promise.resolve(useCaseParams.commentId));
     mockThreadCommentRepository.delThreadComment = jest.fn()
       .mockImplementation(() => Promise.resolve());
-    mockAuthenticationTokenManager.verifyAccessToken = jest.fn()
-      .mockImplementation(() => Promise.resolve(useCaseHeaders.authorization));
-    mockAuthenticationTokenManager.decodePayload = jest.fn()
-      .mockImplementation(() => Promise.resolve(useCaseHeaders.authorization));
 
     /** creating use case instance */
     const deleteThreadCommentUseCase = new DeleteThreadCommentUseCase({
       threadCommentRepository: mockThreadCommentRepository,
-      authenticationTokenManager: mockAuthenticationTokenManager,
     });
 
     // Action
-    await deleteThreadCommentUseCase.execute(useCaseParams, useCaseHeaders);
+    await deleteThreadCommentUseCase.execute(useCaseParams, userId);
 
     // Assert
-    expect(mockThreadCommentRepository.delThreadComment).toBeCalledWith({
-      ...useCaseParams,
-      userId: '',
-    });
-    expect(mockThreadCommentRepository.getThreadComment).toBeCalledWith(useCaseParams.commentId);
-    expect(mockAuthenticationTokenManager.verifyAccessToken).toBeCalledWith(useCaseHeaders.authorization);
-    expect(mockAuthenticationTokenManager.decodePayload).toBeCalledWith(useCaseHeaders.authorization);
+    expect(mockThreadCommentRepository.delThreadComment).toBeCalledWith(deletePayload);
+    expect(mockThreadCommentRepository.verifyThreadCommentAvailability).toBeCalledWith(useCaseParams.commentId);
   });
 });

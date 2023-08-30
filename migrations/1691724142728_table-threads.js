@@ -27,6 +27,9 @@ exports.up = (pgm) => pgm.createTable('threads', {
     type: 'TEXT',
     notNull: true,
   },
+  deleted_at: {
+    type: 'TEXT',
+  },
 });
 
 exports.down = (pgm) => {

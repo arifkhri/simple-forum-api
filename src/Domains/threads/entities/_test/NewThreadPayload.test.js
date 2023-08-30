@@ -3,9 +3,7 @@ const NewThreadPayload = require('../NewThreadPayload');
 describe('a NewThread entities', () => {
   it('should throw error when payload did not contain needed property', () => {
     // Arrange
-    const payload = {
-      title: '3 Periode',
-    };
+    const payload = {};
 
     // Action and Assert
     expect(() => new NewThreadPayload(payload)).toThrowError('NEW_THREAD_PAYLOAD.NOT_CONTAIN_NEEDED_PROPERTY');
