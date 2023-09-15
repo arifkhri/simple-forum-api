@@ -1,5 +1,7 @@
 const ThreadCommentRepository = require('../../../Domains/threadscomment/ThreadCommentRepository');
+const VerifyThreadComment = require('../../../Domains/threadscomment/entities/VerifyThreadComment');
 const DeleteThreadCommentUseCase = require('../DeleteThreadCommentUseCase');
+
 
 describe('DeleteThreadCommentUseCase', () => {
   /**
@@ -22,8 +24,8 @@ describe('DeleteThreadCommentUseCase', () => {
     const mockThreadCommentRepository = new ThreadCommentRepository();
     /** mocking needed function */
     mockThreadCommentRepository.verifyThreadCommentAvailability = jest.fn()
-      .mockImplementation(() => Promise.resolve(useCaseParams.commentId));
-    mockThreadCommentRepository.delThreadComment = jest.fn()
+      .mockImplementation(() => Promise.resolve(new VerifyThreadComment({ id: useCaseParams.commentId })));
+    mockThreadCommentRepository.deleteThreadComment = jest.fn()
       .mockImplementation(() => Promise.resolve());
 
     /** creating use case instance */
@@ -35,7 +37,7 @@ describe('DeleteThreadCommentUseCase', () => {
     await deleteThreadCommentUseCase.execute(useCaseParams, userId);
 
     // Assert
-    expect(mockThreadCommentRepository.delThreadComment).toBeCalledWith(deletePayload);
+    expect(mockThreadCommentRepository.deleteThreadComment).toBeCalledWith(deletePayload);
     expect(mockThreadCommentRepository.verifyThreadCommentAvailability).toBeCalledWith(useCaseParams.commentId);
   });
 });

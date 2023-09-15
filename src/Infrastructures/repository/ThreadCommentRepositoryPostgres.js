@@ -2,6 +2,7 @@ const NotFoundError = require('../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
 const NewThreadCommentResponse = require('../../Domains/threadscomment/entities/NewThreadCommentResponse');
 const ThreadComment = require('../../Domains/threadscomment/entities/ThreadComment');
+const VerifyThreadComment = require('../../Domains/threadscomment/entities/VerifyThreadComment');
 const ThreadCommentRepository = require('../../Domains/threadscomment/ThreadCommentRepository');
 
 class ThreadCommentRepositoryPostgres extends ThreadCommentRepository {
@@ -40,7 +41,7 @@ class ThreadCommentRepositoryPostgres extends ThreadCommentRepository {
     return new ThreadComment(result.rows);
   }
 
-  async delThreadComment({
+  async deleteThreadComment({
     commentId,
     userId,
     threadId,
@@ -60,7 +61,7 @@ class ThreadCommentRepositoryPostgres extends ThreadCommentRepository {
 
   async getThreadComment(commentId) {
     const query = {
-      text: 'SELECT thread_comments.deleted_at, thread_comments.id, thread_comments.content, thread_comments.created_at, users.username FROM thread_comments INNER JOIN users ON users.id = thread_comments.owner WHERE thread_comments.id = $1 AND deleted_at IS NULL',
+      text: 'SELECT thread_comments.deleted_at, thread_comments.id, thread_comments.content, thread_comments.created_at, users.username FROM thread_comments INNER JOIN users ON users.id = thread_comments.owner WHERE thread_comments.id = $1 AND thread_comments.deleted_at IS NULL',
       values: [commentId],
     };
 
@@ -85,7 +86,7 @@ class ThreadCommentRepositoryPostgres extends ThreadCommentRepository {
       throw new NotFoundError('thread tidak ditemukan');
     }
 
-    return result.rows?.[0] || null;
+    return new VerifyThreadComment({ ...result.rows[0] });
   }
 }
 

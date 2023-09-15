@@ -1,9 +1,23 @@
 const ThreadComment = require('../ThreadComment');
 
 describe('a ThreadComment entities', () => {
-  it('should throw error when response did not meet data type specification', () => {
+  it('should throw error when rows response did not meet data type specification', () => {
     // Arrange
     const rows = {};
+
+    // Action and Assert
+    expect(() => new ThreadComment(rows)).toThrowError('THREAD_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION');
+  });
+
+  it('should throw error when response inside rows did not meet data type specification', () => {
+    // Arrange
+    const rows = [{
+      id: 1,
+      content: null,
+      created_at: '2019-01-01 00:00:00',
+      deleted_at: '2019-01-01 00:00:00',
+      username: 'rahmat',
+    }];
 
     // Action and Assert
     expect(() => new ThreadComment(rows)).toThrowError('THREAD_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION');

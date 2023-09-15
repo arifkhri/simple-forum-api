@@ -4,6 +4,7 @@ const DomainErrorTranslator = require('../../Commons/exceptions/DomainErrorTrans
 const users = require('../../Interfaces/http/api/users');
 const authentications = require('../../Interfaces/http/api/authentications');
 const threads = require('../../Interfaces/http/api/threads');
+const threadscomment = require('../../Interfaces/http/api/threadscomment');
 
 const createServer = async (container, jwtTokenManager) => {
   const server = Hapi.server({
@@ -22,6 +23,10 @@ const createServer = async (container, jwtTokenManager) => {
     },
     {
       plugin: threads,
+      options: { container, jwtTokenManager },
+    },
+    {
+      plugin: threadscomment,
       options: { container, jwtTokenManager },
     },
   ]);

@@ -31,18 +31,10 @@ class ThreadComment {
       rows.forEach(({
         id, content, created_at, username, deleted_at,
       }) => {
-        if (typeof id !== 'string') {
+        if (typeof id !== 'string' || typeof content !== 'string' || typeof created_at !== 'string' || typeof username !== 'string') {
           throw new InvariantError('THREAD_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION');
         }
-        if (typeof content !== 'string') {
-          throw new InvariantError('THREAD_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION');
-        }
-        if (typeof created_at !== 'string') {
-          throw new InvariantError('THREAD_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION');
-        }
-        if (typeof username !== 'string') {
-          throw new InvariantError('THREAD_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION');
-        }
+
         if (deleted_at !== null && typeof deleted_at !== 'string') {
           throw new InvariantError('THREAD_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
         }

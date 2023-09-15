@@ -39,9 +39,21 @@ describe('DetailThreadUseCase', () => {
     const mockThreadRepository = new ThreadRepository();
     /** mocking needed function */
     mockThreadCommentRepository.getCommentByThreadId = jest.fn()
-      .mockImplementation(() => Promise.resolve(mockComments));
+      .mockImplementation(() => Promise.resolve(new ThreadComment([{
+        id: 'id-comment-1',
+        content: 'content comment',
+        created_at: 'date comment',
+        username: 'username comment',
+        deleted_at: null,
+      }])));
     mockThreadRepository.getThread = jest.fn()
-      .mockImplementation(() => Promise.resolve(mockThread));
+      .mockImplementation(() => Promise.resolve(new DetailThread({
+        id: 'id1',
+        title: 'title',
+        body: 'body',
+        date: 'date',
+        username: 'username',
+      })));
 
     /** creating use case instance */
     const detailThreadUseCase = new DetailThreadUseCase({

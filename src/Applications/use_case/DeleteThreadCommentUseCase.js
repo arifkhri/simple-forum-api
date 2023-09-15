@@ -7,7 +7,7 @@ class DeleteThreadCommentUseCase {
     const { threadId, commentId } = useCaseParams;
     await this._threadCommentRepository.verifyThreadCommentAvailability(commentId);
 
-    return this._threadCommentRepository.delThreadComment({ commentId, userId, threadId });
+    return this._threadCommentRepository.deleteThreadComment({ commentId, userId, threadId });
   }
 }
 

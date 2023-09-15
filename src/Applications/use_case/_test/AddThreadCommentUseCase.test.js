@@ -1,4 +1,5 @@
 const NewThreadCommentResponse = require('../../../Domains/threadscomment/entities/NewThreadCommentResponse');
+const VerifyThread = require('../../../Domains/threads/entities/VerifyThread');
 const NewThreadCommentPayload = require('../../../Domains/threadscomment/entities/NewThreadCommentPayload');
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const ThreadCommentRepository = require('../../../Domains/threadscomment/ThreadCommentRepository');
@@ -36,9 +37,15 @@ describe('AddThreadCommentUseCase', () => {
 
     /** mocking needed function */
     mockThreadRepository.verifyThreadAvailability = jest.fn()
-      .mockImplementation(() => Promise.resolve(useCaseParams.threadId));
+      .mockImplementation(() => Promise.resolve(new VerifyThread({
+        id: useCaseParams.threadId,
+      })));
     mockThreadCommentRepository.addThreadComment = jest.fn()
-      .mockImplementation(() => Promise.resolve(mockThreadCommentResponse));
+      .mockImplementation(() => Promise.resolve(new NewThreadCommentResponse({
+        content: useCasePayload.content,
+        id: '1',
+        owner: userId,
+      })));
 
     /** creating use case instance */
     const addThreadCommentUseCase = new AddThreadCommentUseCase({

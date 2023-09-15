@@ -1,5 +1,6 @@
 /* istanbul ignore file */
 const pool = require('../src/Infrastructures/database/postgres/pool');
+const NewThreadResponse = require('../src/Domains/threadscomment/entities/NewThreadCommentResponse');
 
 const ThreadCommentTableTestHelper = {
   async addThreadComment({
@@ -22,7 +23,7 @@ const ThreadCommentTableTestHelper = {
     };
 
     const result = await pool.query(query);
-    return result.rows;
+    return new NewThreadResponse({ ...result.rows[0] });
   },
 
   async cleanTable() {
