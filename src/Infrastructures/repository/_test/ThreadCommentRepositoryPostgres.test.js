@@ -51,74 +51,6 @@ describe('ThreadCommentRepositoryPostgres', () => {
     });
   });
 
-  describe('getThreadComment function', () => {
-    it('should throw NotFoundError when threadCommentId not found', async () => {
-      const threadCommentPayload = new NewThreadCommentPayload({
-        content: 'hanya',
-      });
-
-      const fakeIdGenerator = '123'; // stub!
-      const userId = `user-${fakeIdGenerator}`;
-      const threadId = `thread-${fakeIdGenerator}`;
-      const threadCommentId = 'comment-000';
-
-      await UsersTableTestHelper.addUser({ id: userId });
-      await ThreadTableTestHelper.addThread({ id: userId });
-      await ThreadCommentTableTestHelper.addThreadComment({ ...threadCommentPayload, userId, threadId });
-      const threadCommentRepositoryPostgres = new ThreadCommentRepositoryPostgres(pool, {});
-
-      // Action & Assert
-      await expect(threadCommentRepositoryPostgres.getThreadComment(threadCommentId)).rejects.toThrowError(NotFoundError);
-    });
-
-    it('should not throw NotFoundError when threadCommentId exist', async () => {
-      const threadCommentPayload = new NewThreadCommentPayload({
-        content: 'hanya',
-      });
-
-      const fakeIdGenerator = '123'; // stub!
-      const userId = `user-${fakeIdGenerator}`;
-      const threadId = `thread-${fakeIdGenerator}`;
-      const threadCommentId = `comment-${fakeIdGenerator}`;
-
-      await UsersTableTestHelper.addUser({ id: userId });
-      await ThreadTableTestHelper.addThread({ id: userId });
-      await ThreadCommentTableTestHelper.addThreadComment({ ...threadCommentPayload, userId, threadId, commentId: threadCommentId });
-      const threadCommentRepositoryPostgres = new ThreadCommentRepositoryPostgres(pool, {});
-
-      // Action & Assert
-      await expect(threadCommentRepositoryPostgres.getThreadComment(threadCommentId)).resolves.not.toThrowError(NotFoundError);
-    });
-
-    it('should return thread detail correctly', async () => {
-      // Arrange
-      const threadCommentPayload = new NewThreadCommentPayload({
-        content: 'hanya',
-      });
-      const fakeIdGenerator = '123'; // stub!
-      const userId = `user-${fakeIdGenerator}`;
-      const threadId = `thread-${fakeIdGenerator}`;
-      const threadCommentId = `comment-${fakeIdGenerator}`;
-      await UsersTableTestHelper.addUser({ id: userId });
-      await ThreadTableTestHelper.addThread({ threadId, userId });
-      await ThreadCommentTableTestHelper.addThreadComment({ ...threadCommentPayload, userId, threadId, commentId: threadCommentId });
-      const threadCommentRepositoryPostgres = new ThreadCommentRepositoryPostgres(pool, {});
-      const rowUser = await UsersTableTestHelper.findUsersById(userId);
-      const commentsResponse = [{
-        id: threadCommentId,
-        content: threadCommentPayload.content,
-        username: rowUser[0].username,
-        created_at: '2023-08-29',
-        deleted_at: null,
-      }];
-      const newThreadCommentResponse = new ThreadComment(commentsResponse);
-      const threadComment = await threadCommentRepositoryPostgres.getThreadComment(threadCommentId);
-
-      // Assert
-      expect(threadComment).toStrictEqual(newThreadCommentResponse);
-    });
-  });
-
   describe('verifyThreadCommentAvailability function', () => {
     it('should return threadCommentId not found', async () => {
       // Arrange
@@ -167,29 +99,67 @@ describe('ThreadCommentRepositoryPostgres', () => {
   describe('addThreadComment function', () => {
     it('should persist threadComment and return created threadComment correctly', async () => {
       // Arrange
+      const fakeIdGenerator = () => '123'; // stub!
+      const userId = `user-${fakeIdGenerator()}`;
+      const threadId = `thread-${fakeIdGenerator()}`;
+      const threadCommentId = `comment-${fakeIdGenerator()}`;
+
       const threadCommentPayload = new NewThreadCommentPayload({
         content: 'hanya',
       });
 
-      const fakeIdGenerator = () => '123'; // stub!
-      const userId = `user-${fakeIdGenerator()}`;
-      const threadId = `thread-${fakeIdGenerator()}`;
+      const expectedThreadComment = new NewThreadCommentResponse({
+        content: 'hanya',
+        owner: userId,
+        id: threadCommentId,
+      });
 
       const threadCommentRepositoryPostgres = new ThreadCommentRepositoryPostgres(pool, fakeIdGenerator);
 
       // Action
       await UsersTableTestHelper.addUser({ id: userId });
       await ThreadTableTestHelper.addThread({ threadId, userId });
-      const createdThread = await threadCommentRepositoryPostgres.addThreadComment({ ...threadCommentPayload, threadId, userId });
+      const createdComment = await threadCommentRepositoryPostgres.addThreadComment({ ...threadCommentPayload, threadId, userId });
+      const threadComments = await ThreadCommentTableTestHelper.findThreadCommentById(threadCommentId);
+      const persistComment = {
+        content: threadComments[0].content,
+        id: threadComments[0].id,
+        owner: threadComments[0].owner,
+      };
 
       // Assert
-      const threads = await ThreadCommentTableTestHelper.findThreadCommentById(createdThread.id);
-      expect(threads).toEqual(createdThread);
+      expect(persistComment).toEqual(expectedThreadComment);
+      expect(createdComment).toEqual(expectedThreadComment);
     });
   });
 
   describe('deleteThreadComment function', () => {
-    it('should not return an error', async () => {
+    it('should return valid column deleted_at', async () => {
+      // Arrange
+      const fakeIdGenerator = '12322'; // stub!
+      const userMamat = {
+        id: `user-${fakeIdGenerator}`,
+        username: 'mamat-ushop',
+      };
+      const threadId = `thread-${fakeIdGenerator}`;
+      const threadCommentId = `comment-${fakeIdGenerator}`;
+
+      const threadCommentRepositoryPostgres = new ThreadCommentRepositoryPostgres(pool, {});
+
+      // Action
+      await UsersTableTestHelper.addUser(userMamat);
+      await ThreadTableTestHelper.addThread({ threadId, userId: userMamat.id });
+      await ThreadCommentTableTestHelper.addThreadComment({ threadId, userId: userMamat.id, threadCommentId });
+      await threadCommentRepositoryPostgres.deleteThreadComment({ commentId: threadCommentId, threadId, userId: userMamat.id });
+      const threadComments = await ThreadCommentTableTestHelper.findThreadCommentById(threadCommentId);
+      const deleted_at = threadComments[0].deleted_at;
+      // Assert
+      expect(deleted_at).not.toBeNull();
+    });
+  });
+
+  describe('verifyThreadCommentAccess function', () => {
+    it('should not return n error', async () => {
       // Arrange
       const fakeIdGenerator = '12322'; // stub!
       const userMamat = {
@@ -207,7 +177,7 @@ describe('ThreadCommentRepositoryPostgres', () => {
       await ThreadCommentTableTestHelper.addThreadComment({ threadId, userId: userMamat.id, threadCommentId });
 
       // Assert
-      expect(threadCommentRepositoryPostgres.deleteThreadComment({ commentId: threadCommentId, threadId, userId: userMamat.id })).resolves.not.toThrowError(AuthorizationError);
+      expect(threadCommentRepositoryPostgres.verifyThreadCommentAccess({ commentId: threadCommentId, threadId, userId: userMamat.id })).resolves.not.toThrowError(AuthorizationError);
     });
 
     it('should return authorization error', async () => {
@@ -233,7 +203,7 @@ describe('ThreadCommentRepositoryPostgres', () => {
       await ThreadCommentTableTestHelper.addThreadComment({ threadId, userId: userMamat.id, threadCommentId });
 
       // Assert
-      expect(threadCommentRepositoryPostgres.deleteThreadComment({ commentId: threadCommentId, threadId, userId: userMemet.id })).rejects.toThrowError(AuthorizationError);
+      expect(threadCommentRepositoryPostgres.verifyThreadCommentAccess({ commentId: threadCommentId, threadId, userId: userMemet.id })).rejects.toThrowError(AuthorizationError);
     });
   });
 });

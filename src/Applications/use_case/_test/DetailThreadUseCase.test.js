@@ -3,6 +3,7 @@ const ThreadComment = require('../../../Domains/threadscomment/entities/ThreadCo
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const DetailThread = require('../../../Domains/threads/entities/DetailThread');
 const DetailThreadUseCase = require('../DetailThreadUseCase');
+const VerifyThread = require('../../../Domains/threads/entities/VerifyThread');
 
 describe('DetailThreadUseCase', () => {
   /**
@@ -14,7 +15,7 @@ describe('DetailThreadUseCase', () => {
     };
 
     const mockThread = new DetailThread({
-      id: 'id1',
+      id: useCaseParams.threadId,
       title: 'title',
       body: 'body',
       date: 'date',
@@ -48,12 +49,14 @@ describe('DetailThreadUseCase', () => {
       }])));
     mockThreadRepository.getThread = jest.fn()
       .mockImplementation(() => Promise.resolve(new DetailThread({
-        id: 'id1',
+        id: useCaseParams.threadId,
         title: 'title',
         body: 'body',
         date: 'date',
         username: 'username',
       })));
+    mockThreadRepository.verifyThreadAvailability = jest.fn()
+      .mockImplementation(() => Promise.resolve(new VerifyThread({ id: useCaseParams.threadId })));
 
     /** creating use case instance */
     const detailThreadUseCase = new DetailThreadUseCase({

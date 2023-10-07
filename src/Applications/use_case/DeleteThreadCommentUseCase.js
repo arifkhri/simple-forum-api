@@ -6,6 +6,7 @@ class DeleteThreadCommentUseCase {
   async execute(useCaseParams, userId) {
     const { threadId, commentId } = useCaseParams;
     await this._threadCommentRepository.verifyThreadCommentAvailability(commentId);
+    await this._threadCommentRepository.verifyThreadCommentAccess({ commentId, userId, threadId });
 
     return this._threadCommentRepository.deleteThreadComment({ commentId, userId, threadId });
   }

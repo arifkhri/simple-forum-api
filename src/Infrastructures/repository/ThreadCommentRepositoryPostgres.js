@@ -52,26 +52,24 @@ class ThreadCommentRepositoryPostgres extends ThreadCommentRepository {
       values: [deletedAt, commentId, userId, threadId],
     };
 
-    const result = await this._pool.query(query);
-
-    if (!result.rowCount) {
-      throw new AuthorizationError('Error akses dibatasi');
-    }
+    await this._pool.query(query);
   }
 
-  async getThreadComment(commentId) {
+  async verifyThreadCommentAccess({
+    commentId,
+    userId,
+    threadId,
+  }) {
     const query = {
-      text: 'SELECT thread_comments.deleted_at, thread_comments.id, thread_comments.content, thread_comments.created_at, users.username FROM thread_comments INNER JOIN users ON users.id = thread_comments.owner WHERE thread_comments.id = $1 AND thread_comments.deleted_at IS NULL',
-      values: [commentId],
+      text: 'SELECT * from thread_comments WHERE id = $1 AND owner=$2 AND thread_id=$3',
+      values: [commentId, userId, threadId],
     };
 
     const result = await this._pool.query(query);
 
     if (!result.rowCount) {
-      throw new NotFoundError('Komen tidak ditemukan');
+      throw new AuthorizationError('Error akses dibatasi');
     }
-
-    return new ThreadComment(result.rows);
   }
 
   async verifyThreadCommentAvailability(commentId) {

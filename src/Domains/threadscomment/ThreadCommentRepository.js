@@ -11,11 +11,11 @@ class ThreadCommentRepository {
     throw new Error('THREAD_COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   }
 
-  async getThreadComment(commentId) {
+  async verifyThreadCommentAvailability(threadId) {
     throw new Error('THREAD_COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   }
 
-  async verifyThreadCommentAvailability(threadId) {
+  async verifyThreadCommentAccess({ commentId, userId, threadId, }) {
     throw new Error('THREAD_COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   }
 }

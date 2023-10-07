@@ -20,30 +20,6 @@ describe('ThreadRepositoryPostgres', () => {
   });
 
   describe('getThread function', () => {
-    it('should throw NotFoundError when threadId not found', async () => {
-      // Arrange
-      const userId = 'user-123';
-      const threadId = 'thread-000';
-      await UsersTableTestHelper.addUser({ id: userId });
-      await ThreadTableTestHelper.addThread({ userId });
-      const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, {});
-
-      // Action & Assert
-      await expect(threadRepositoryPostgres.getThread(threadId)).rejects.toThrowError(NotFoundError);
-    });
-
-    it('should not throw NotFoundError when threadId exist', async () => {
-      // Arrange
-      const userId = 'user-123';
-      const threadId = 'thread-000';
-      await UsersTableTestHelper.addUser({ id: userId });
-      await ThreadTableTestHelper.addThread({ threadId, userId });
-      const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, {});
-
-      // Action & Assert
-      await expect(threadRepositoryPostgres.getThread(threadId)).resolves.not.toThrowError(NotFoundError);
-    });
-
     it('should return thread detail correctly', async () => {
       // Arrange
       const userId = 'user-123';
@@ -100,10 +76,16 @@ describe('ThreadRepositoryPostgres', () => {
       // Arrange
       const fakeIdGenerator = () => '123'; // stub!
       const userId = `user-${fakeIdGenerator()}`;
+      const threadId = `thread-${fakeIdGenerator()}`;
 
       const threadPayload = new NewThreadPayload({
         body: 'hanya body',
         title: 'hanya title',
+      });
+      const expectedThread = new NewThreadResponse({
+        owner: userId,
+        title: 'hanya title',
+        id: threadId,
       });
 
       const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, fakeIdGenerator);
@@ -113,8 +95,14 @@ describe('ThreadRepositoryPostgres', () => {
       const createdThread = await threadRepositoryPostgres.addThread({ ...threadPayload, userId });
 
       // Assert
-      const threads = await ThreadTableTestHelper.findThreadById('thread-123');
-      expect(createdThread).toStrictEqual(threads);
+      const threads = await ThreadTableTestHelper.findThreadById(threadId);
+      const persistThread = {
+        title: threads[0].title,
+        owner: threads[0].owner,
+        id: threads[0].id,
+      };
+      expect(createdThread).toEqual(expectedThread);
+      expect(persistThread).toEqual(expectedThread);
     });
   });
 });

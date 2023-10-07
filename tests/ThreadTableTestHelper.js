@@ -1,5 +1,4 @@
 /* istanbul ignore file */
-const NewThreadResponse = require('../src/Domains/threads/entities/NewThreadResponse');
 const pool = require('../src/Infrastructures/database/postgres/pool');
 
 const ThreadTableTestHelper = {
@@ -23,7 +22,7 @@ const ThreadTableTestHelper = {
     };
 
     const result = await pool.query(query);
-    return new NewThreadResponse({ ...result.rows[0] });
+    return result.rows;
   },
 
   async cleanTable() {
