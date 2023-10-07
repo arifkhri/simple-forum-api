@@ -2,7 +2,6 @@ const ThreadCommentRepository = require('../../../Domains/threadscomment/ThreadC
 const VerifyThreadComment = require('../../../Domains/threadscomment/entities/VerifyThreadComment');
 const DeleteThreadCommentUseCase = require('../DeleteThreadCommentUseCase');
 
-
 describe('DeleteThreadCommentUseCase', () => {
   /**
    * Menguji apakah use case mampu mengoskestrasikan langkah demi langkah dengan benar.
@@ -25,6 +24,8 @@ describe('DeleteThreadCommentUseCase', () => {
     /** mocking needed function */
     mockThreadCommentRepository.verifyThreadCommentAvailability = jest.fn()
       .mockImplementation(() => Promise.resolve(new VerifyThreadComment({ id: useCaseParams.commentId })));
+    mockThreadCommentRepository.verifyThreadCommentAccess = jest.fn()
+      .mockImplementation(() => Promise.resolve());
     mockThreadCommentRepository.deleteThreadComment = jest.fn()
       .mockImplementation(() => Promise.resolve());
 
