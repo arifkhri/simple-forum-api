@@ -21,3 +21,4 @@ jobs:
           git pull origin master
           whoami
           node -v
+          pm2 restart forumapi
