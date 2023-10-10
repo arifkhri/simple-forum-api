@@ -19,4 +19,4 @@ jobs:
         script: |
           cd ~/simple-forum-api
           git pull origin master
-          ls
+          pm2 restart forumapi
