@@ -20,3 +20,4 @@ jobs:
           cd ~/simple-forum-api
           git pull origin master
           whoami
+          node -v
