@@ -35,7 +35,7 @@ const createServer = async (container, jwtTokenManager) => {
     method: 'GET',
     path: '/',
     handler: () => ({
-      value: 'Hello good World!',
+      value: 'Hello World!',
     }),
   });
 
