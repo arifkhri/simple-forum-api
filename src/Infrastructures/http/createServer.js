@@ -39,6 +39,7 @@ const createServer = async (container, jwtTokenManager) => {
     }),
   });
 
+
   server.ext('onPreResponse', (request, h) => {
     const { response } = request;
 
