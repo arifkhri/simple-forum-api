@@ -15,11 +15,7 @@ jobs:
       with:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USERNAME }}
-        password: ${{ secrets.password }}
+        password: ${{ secrets.PASSWORD }}
         script: |
-          cd ~/simple-forum-api
-          git pull origin master
           nvm use v14.19.0
-          npm install
-          npm run migrate up
           pm2 restart forumapi
