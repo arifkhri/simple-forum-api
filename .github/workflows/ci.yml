@@ -22,7 +22,7 @@ jobs:
         # Provide the password for postgres
         env:
           # optional (defaults to `postgres`)
-          POSTGRES_DB: forumapi
+          POSTGRES_DB: forumapi_test
           # required
           POSTGRES_PASSWORD: postgres
           # optional (defaults to `5432`)
@@ -59,7 +59,7 @@ jobs:
         PGPORT_TEST: ${{ secrets.PGPORT_TEST }}
         PGHOST: ${{ secrets.PGHOST }}
         PGUSER: ${{ secrets.PGUSER }}
-        PGDATABASE: ${{ secrets.PGDATABASE }}
+        PGDATABASE: ${{ secrets.PGDATABASE_TEST }}
         PGPASSWORD: ${{ secrets.PGPASSWORD }}
         PGPORT: ${{ secrets.PGPORT }}
         ACCESS_TOKEN_KEY: ${{ secrets.ACCESS_TOKEN_KEY }}
