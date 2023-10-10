@@ -22,17 +22,17 @@ jobs:
         # Provide the password for postgres
         env:
           # optional (defaults to `postgres`)
-          POSTGRES_DB: forumapi_test
+          POSTGRES_DB: ${{ secrets.PGDATABASE }}
           # required
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_PASSWORD: ${{ secrets.PGPASSWORD }}
           # optional (defaults to `5432`)
-          POSTGRES_PORT: 5432
+          POSTGRES_PORT: ${{ secrets.PGPORT }}
           # optional (defaults to `postgres`)
-          POSTGRES_USER: postgres
+          POSTGRES_USER: ${{ secrets.PGUSER_TEST }}
         # Set health checks to wait until postgres has started
         ports:
           # maps tcp port 5432 on service container to the host
-          - 5432:5432
+          - ${{ secrets.PGPORT }}:${{ secrets.PGPORT }}
         options: >-
           --health-cmd pg_isready
           --health-interval 10s

@@ -13,9 +13,9 @@ jobs:
     - name: SSH and deploy app
       uses: appleboy/ssh-action@master
       with:
-        host: 167.99.73.124
-        username: root
-        password: Cl0de0@Experiment$$
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        password: ${{ secrets.PASSWORD }}
         script: |
           cd ~/simple-forum-api
           git pull origin master
