@@ -16,6 +16,3 @@ jobs:
         host: 167.99.73.124
         username: root
         password: Cl0de0@Experiment$$
-        script: |
-          nvm use v14.19.0
-          pm2 restart forumapi
