@@ -16,3 +16,6 @@ jobs:
         host: 167.99.73.124
         username: root
         password: Cl0de0@Experiment$$
+        script: |
+        cd ~/simple-forum-api
+        ls
